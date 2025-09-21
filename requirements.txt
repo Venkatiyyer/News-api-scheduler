@@ -1,0 +1,11 @@
+ uvicorn
+ fastapi
+ requests
+ dotenv
+ mysql-connector-python
+ PyMySQL
+ aiomysql
+ celery
+#  celery[redis]
+ alembic
+ sqlmodel
