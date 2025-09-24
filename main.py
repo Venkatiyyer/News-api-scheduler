@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from middleware import TotalTimeMiddleware
 from connector import AsyncMySQLConnector
 from logger import logger  # import logger
+from datetime import datetime
 
 load_dotenv()
 
@@ -49,4 +50,30 @@ async def get_news(date: str = Query(..., description="Date in YYYY-MM-DD format
 
     except Exception as e:
         logger.exception(f"Failed to fetch news for date {date}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+
+    
+
+@server.delete("/del_news")
+async def delete_news():
+    """
+    Delete news for today.
+    Example: /del_news
+    """
+    date = datetime.now().strftime("%Y-%m-%d")  # today's date
+    try:
+        if os.name == "nt":
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+        query = """
+            DELETE FROM `news`
+            WHERE DATE(`published_at`) = %s
+        """
+        await AsyncMySQLConnector.execute_query(query, (date,), fetch=False)
+        logger.info(f"Deleted all news for date: {date}")
+        return {"message": f"Deleted all news for date {date}"}
+
+    except Exception as e:
+        logger.exception(f"Failed to delete news for date {date}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
