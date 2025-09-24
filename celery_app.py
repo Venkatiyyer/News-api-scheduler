@@ -3,6 +3,8 @@ import asyncio
 from dotenv import load_dotenv
 from celery import Celery
 from logger import logger
+from datetime import datetime
+
 
 load_dotenv()
 
@@ -14,7 +16,7 @@ if os.name == "nt":
     except Exception as e:
         logger.warning(f"Failed to set Windows event loop policy: {e}")
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+# REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Celery configuration
 try:
@@ -34,6 +36,11 @@ celery_app.conf.beat_schedule = {
         "task": "scheduler.fetch_news",
         "schedule": 60.0,  # seconds
     },
+    "delete-news-every-minute": {
+        "task": "scheduler.delete_news",
+        "schedule": 60.0,  # seconds
+        # "args": [datetime.now().strftime("%Y-%m-%d")],  # pass today's date
+},
 }
 logger.info("Celery beat schedule configured: fetch_news every 60s")
 
