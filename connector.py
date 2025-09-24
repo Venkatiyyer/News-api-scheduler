@@ -54,6 +54,11 @@ class AsyncMySQLConnector:
     async def insert_news(cls, title: str, description: str):
         query = "INSERT INTO news (title, description) VALUES (%s, %s)"
         return await cls.execute_query(query, (title, description), fetch=False)
+    
+    @classmethod
+    async def delete_news(cls, title: str, description: str):
+        query = "DELETE FROM news  WHERE DATE(`published_at`) = %s"
+        return await cls.execute_query(query, (title, description), fetch=False)
 
     @classmethod
     async def execute_query(cls, query: str, params: tuple = None, fetch: bool = True):
